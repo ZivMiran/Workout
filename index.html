@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZIV PRO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;900&display=swap');
+        :root { --black: #080808; --white: #ffffff; --green: #00ff66; --orange: #ff5e00; --bg: var(--black); --fg: var(--white); --accent: var(--green); --border: 3px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { margin: 0; padding: 0; height: 100vh; width: 100vw; background-color: var(--bg); color: var(--fg); font-family: 'Inter', sans-serif; overflow: hidden; transition: background 0.25s, color 0.25s; display: flex; justify-content: center; }
+        .container { width: 100%; height: 100%; max-width: 1400px; display: none; flex-direction: column; justify-content: space-between; align-items: center; padding: 4vh 4vw; text-align: center; }
+        .container.active { display: flex; }
+        h1.hero { font-size: 8vmin; line-height: 1; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.03em; }
+        .timer-display { font-size: 28vmin; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 0.9; letter-spacing: -0.06em; margin: 1vh 0; cursor: pointer; }
+        .label { font-size: 2vmin; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.8; margin-bottom: 0.5rem; }
+        .notes { font-size: 2.2vmin; max-width: 60ch; line-height: 1.4; opacity: 0.7; margin: 0 auto; }
+        .pill { display: inline-flex; align-items: center; justify-content: center; padding: 0.6em 2em; border: var(--border) solid currentColor; border-radius: 100px; font-weight: 900; font-size: 2.5vmin; text-transform: uppercase; }
+        .btn-main { width: 100%; max-width: 500px; padding: 1.2em 0; font-size: 2.5vmin; font-weight: 900; text-transform: uppercase; background: var(--fg); color: var(--bg); border: var(--border) solid var(--bg); border-radius: 100px; cursor: pointer; transition: transform 0.1s; }
+        .btn-main:active { transform: scale(0.97); }
+        .btn-ghost { background: transparent; color: inherit; border: 2px solid currentColor; padding: 0.6em 1.5em; border-radius: 100px; font-weight: 700; font-size: 1.8vmin; cursor: pointer; opacity: 0.5; }
+        #setup .btn-main { margin: 10px 0; background: transparent; color: var(--fg); border-color: var(--fg); }
+        #setup .btn-main:hover { background: var(--green); border-color: var(--green); color: var(--black); }
+        body.mode-rest { --bg: var(--white); --fg: var(--black); --accent: var(--black); }
+        body.mode-switch { --bg: var(--orange); --fg: var(--black); --accent: var(--black); }
+        #pause-layer { position: fixed; inset: 0; z-index: 100; background: rgba(0, 255, 102, 0.95); display: none; align-items: center; justify-content: center; }
+        #pause-layer.visible { display: flex; }
+        .flex-col { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .progress-bar { width: 100%; height: 6px; background: rgba(127,127,127,0.3); border-radius: 100px; margin-bottom: 2vh; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+
+    <div id="pause-layer" onclick="app.togglePause()">
+        <h1 style="font-size: 15vmin; color: black; font-weight: 900; margin:0;">PAUSED</h1>
+    </div>
+
+    <div id="setup" class="container active" style="justify-content: center;">
+        <div class="label" style="color: var(--green)">ZIV WORKOUT v5.4</div>
+        <h1 class="hero" style="font-size: 15vmin; margin-bottom: 4vh;">READY?</h1>
+        <div class="flex-col" style="gap: 1vh;">
+            <button class="btn-main" onclick="app.start('A')">WORKOUT A (PUSH)</button>
+            <button class="btn-main" onclick="app.start('B')">WORKOUT B (PULL)</button>
+        </div>
+        <button onclick="audio.test()" style="margin-top: 5vh; background:none; border:none; color: #444; text-decoration: underline; cursor:pointer;">Sound Check</button>
+    </div>
+
+    <div id="workout-ui" class="container">
+        <div class="flex-col">
+            <div class="progress-bar"><div id="prog-fill" class="progress-fill"></div></div>
+            <div id="phase-lbl" class="label" style="color: var(--accent)">WORK</div>
+            <h1 id="ex-name" class="hero">EXERCISE</h1>
+            <div style="margin-top: 1.5vh;"><div id="target-pill" class="pill">TARGET: 12</div></div>
+        </div>
+        <div id="timer" class="timer-display" onclick="app.togglePause()">00:00</div>
+        <div class="flex-col">
+            <div id="meta-lbl" class="label">SET 1 / 3</div>
+            <div id="notes-lbl" class="notes">Notes.</div>
+            <div style="margin-top: 3vh; width: 100%; display: flex; justify-content: center;">
+                <button id="action-btn" class="btn-main" onclick="app.action()">START</button>
+            </div>
+            <div style="display: flex; gap: 15px; margin-top: 2vh;">
+                <button class="btn-ghost" onclick="app.togglePause()">PAUSE</button>
+                <button class="btn-ghost" onclick="app.quit()">EXIT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="complete" class="container" style="justify-content: center;">
+        <h1 class="hero" style="margin-bottom: 2vh;">DONE.</h1>
+        <button class="btn-main" onclick="location.reload()" style="background: var(--green); color: black; border:none;">RESTART</button>
+    </div>
+
+    <script>
+        const audio = {
+            sys: new Audio('alert.mp3'),
+            play() {
+                this.sys.currentTime = 0;
+                this.sys.play().catch(e => console.error("Audio block", e));
+            },
+            test() { this.play(); }
+        };
+
+        const WORKOUTS = {
+            'A': [
+                { name: 'Push-ups', sets: 3, reps: 'MAX (CLEAN)', rest: 90, notes: 'Chest to floor. Rigid plank.' },
+                { name: 'Pike Push-ups', sets: 3, reps: '8 - 12', rest: 90, notes: 'Hips high V-shape.' },
+                { name: 'Chair Dips', sets: 3, reps: '12 - 15', rest: 60, notes: 'Elbows back, deep stretch.' },
+                { name: 'Hollow Body', sets: 3, reps: '30-45 SEC', rest: 60, target: 30, notes: 'Lower back GLUED to floor.' },
+                { name: 'Side Planks', sets: 3, reps: '45S / SIDE', rest: 60, type: 'plank', notes: 'Obliques tight. 5s switch.' }
+            ],
+            'B': [
+                { name: 'Pull-ups', sets: 3, reps: 'MAX -1', rest: 120, notes: 'Full hang to chin over bar.' },
+                { name: 'Chin-ups', sets: 2, reps: '8 - 10', rest: 90, notes: 'Palms facing you.' },
+                { name: 'Active Hangs', sets: 2, reps: 'MAX TIME', rest: 90, notes: 'Shoulders away from ears.' },
+                { name: 'Negatives', sets: 2, reps: '5 REPS', rest: 90, notes: 'Jump up, lower for 5-10s.' },
+                { name: 'Knee Raises', sets: 3, reps: '10 - 15', rest: 60, notes: 'Control the swing.' }
+            ]
+        };
+
+        const app = {
+            state: 'IDLE', data: [], exIdx: 0, setIdx: 1, timer: null, sec: 0, paused: false, plankAbort: false,
+            ui: { setup: document.getElementById('setup'), work: document.getElementById('workout-ui'), comp: document.getElementById('complete'), bg: document.body, phase: document.getElementById('phase-lbl'), title: document.getElementById('ex-name'), pill: document.getElementById('target-pill'), timer: document.getElementById('timer'), meta: document.getElementById('meta-lbl'), notes: document.getElementById('notes-lbl'), btn: document.getElementById('action-btn'), bar: document.getElementById('prog-fill'), pause: document.getElementById('pause-layer') },
+
+            start(type) {
+                audio.play(); // Play sound on selection to unlock audio engine
+                this.data = WORKOUTS[type];
+                this.ui.setup.classList.remove('active');
+                this.ui.work.classList.add('active');
+                this.loadExercise();
+            },
+
+            loadExercise() {
+                this.plankAbort = false; this.state = 'READY'; this.setMode('work');
+                const ex = this.data[this.exIdx];
+                this.ui.phase.innerText = "PREPARE"; this.ui.title.innerText = ex.name;
+                this.ui.pill.innerText = `TARGET: ${ex.reps}`;
+                this.ui.meta.innerText = `SET ${this.setIdx} OF ${ex.sets}`;
+                this.ui.notes.innerText = ex.notes; this.ui.btn.innerText = "START SET";
+                this.renderTime(0); this.updateProgress();
+            },
+
+            action() {
+                if (this.paused) { this.togglePause(); return; }
+                if(this.state === 'READY') this.doWork();
+                else if(this.state === 'WORK' || this.state === 'SWITCH') this.doFinish();
+                else if(this.state === 'REST') this.nextStep();
+            },
+
+            doWork() {
+                const ex = this.data[this.exIdx];
+                if(ex.type === 'plank') this.runPlankSequence();
+                else {
+                    this.state = 'WORK'; this.ui.phase.innerText = "WORK PHASE";
+                    this.ui.btn.innerText = "FINISH SET"; this.startTimer(true, ex.target);
+                }
+            },
+
+            async runPlankSequence() {
+                const segment = async (label, time, mode) => {
+                    if(this.plankAbort) return;
+                    this.setMode(mode); this.state = (mode === 'switch' ? 'SWITCH' : 'WORK');
+                    this.ui.phase.innerText = (mode === 'switch' ? "TRANSITION" : "HOLD");
+                    this.ui.title.innerText = label; this.ui.btn.innerText = "SKIP";
+                    this.sec = time; this.renderTime(this.sec);
+                    await new Promise(r => {
+                        this.timer = setInterval(() => {
+                            if(this.plankAbort) { clearInterval(this.timer); r(); return; }
+                            if(!this.paused) { this.sec--; this.renderTime(this.sec); if(this.sec <= 0) { clearInterval(this.timer); r(); } }
+                        }, 1000);
+                    });
+                    if(!this.plankAbort) audio.play();
+                };
+                this.ui.pill.innerText = "DONT DROP";
+                await segment("LEFT SIDE", 45, 'work'); await segment("SWITCH", 5, 'switch'); await segment("RIGHT SIDE", 45, 'work');
+                if(!this.plankAbort) this.doFinish();
+            },
+
+            doFinish() {
+                if(this.data[this.exIdx].type === 'plank') this.plankAbort = true;
+                this.state = 'REST'; this.setMode('rest');
+                this.ui.title.innerText = "REST"; this.ui.btn.innerText = "SKIP REST";
+                this.startTimer(false, null, this.data[this.exIdx].rest, () => { audio.play(); this.nextStep(); });
+            },
+
+            nextStep() {
+                clearInterval(this.timer);
+                const ex = this.data[this.exIdx];
+                if(this.setIdx < ex.sets) { this.setIdx++; this.loadExercise(); this.doWork(); }
+                else {
+                    this.exIdx++; this.setIdx = 1;
+                    if(this.exIdx >= this.data.length) this.complete();
+                    else { this.loadExercise(); this.doWork(); }
+                }
+            },
+
+            startTimer(countUp, target, startVal = 0, onComplete) {
+                clearInterval(this.timer); this.sec = startVal; this.renderTime(this.sec);
+                this.timer = setInterval(() => {
+                    if(!this.paused) {
+                        if(countUp) { this.sec++; if(target && this.sec === target) audio.play(); }
+                        else { this.sec--; if(this.sec <= 0) { clearInterval(this.timer); if(onComplete) onComplete(); } }
+                        this.renderTime(this.sec);
+                    }
+                }, 1000);
+            },
+
+            renderTime(s) {
+                const m = Math.floor(s / 60).toString().padStart(2,'0');
+                const ss = (s % 60).toString().padStart(2,'0');
+                this.ui.timer.innerText = `${m}:${ss}`;
+            },
+
+            setMode(m) { this.ui.bg.className = `mode-${m}`; },
+
+            updateProgress() {
+                const total = this.data.reduce((a,b) => a + b.sets, 0);
+                const current = this.data.slice(0, this.exIdx).reduce((a,b)=>a+b.sets, 0) + (this.setIdx - 1);
+                this.ui.bar.style.width = `${(current/total)*100}%`;
+            },
+
+            togglePause() { if(this.state !== 'IDLE') { this.paused = !this.paused; this.ui.pause.className = this.paused ? 'visible' : ''; } },
+
+            quit() { if(confirm("Exit workout?")) location.reload(); },
+
+            complete() { this.ui.work.classList.remove('active'); this.ui.comp.classList.add('active'); this.setMode('work'); audio.play(); }
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') { e.preventDefault(); app.action(); }
+            if (e.code === 'Escape') { e.preventDefault(); app.togglePause(); }
+        }, true);
+    </script>
+</body>
+</html>
