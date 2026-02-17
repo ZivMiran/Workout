@@ -3,31 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZIV PRO</title>
+    <title>Ziv Workout</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%2300ff66'><path d='M20 35c-5.5 0-10 4.5-10 10v10c0 5.5 4.5 10 10 10s10-4.5 10-10V45c0-5.5-4.5-10-10-10zm60 0c-5.5 0-10 4.5-10 10v10c0 5.5 4.5 10 10 10s10-4.5 10-10V45c0-5.5-4.5-10-10-10zM30 46h40v8H30z'/></svg>">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;900&display=swap');
-        :root { --black: #080808; --white: #ffffff; --green: #00ff66; --orange: #ff5e00; --bg: var(--black); --fg: var(--white); --accent: var(--green); --border: 3px; }
+        
+        :root { 
+            --black: #080808; 
+            --white: #ffffff; 
+            --green: #00ff66; 
+            --orange: #ff5e00; 
+            --bg: var(--black); 
+            --fg: var(--white); 
+            --accent: var(--green); 
+            --border: 3px; 
+        }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { margin: 0; padding: 0; height: 100vh; width: 100vw; background-color: var(--bg); color: var(--fg); font-family: 'Inter', sans-serif; overflow: hidden; transition: background 0.25s, color 0.25s; display: flex; justify-content: center; }
-        .container { width: 100%; height: 100%; max-width: 1400px; display: none; flex-direction: column; justify-content: space-between; align-items: center; padding: 4vh 4vw; text-align: center; }
+
+        body { 
+            margin: 0; padding: 0; 
+            height: 100vh; width: 100vw; 
+            background-color: var(--bg); color: var(--fg); 
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; 
+            transition: background 0.25s, color 0.25s; 
+            display: flex; justify-content: center; 
+        }
+
+        /* --- DESKTOP LAYOUT (Default) --- */
+        .container { 
+            width: 100%; height: 100%; 
+            max-width: 1400px; 
+            display: none; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 4vh 5vw; 
+            text-align: center; 
+            position: relative; 
+        }
         .container.active { display: flex; }
+
+        /* Typography */
         h1.hero { font-size: 8vmin; line-height: 1; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.03em; }
-        .timer-display { font-size: 28vmin; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 0.9; letter-spacing: -0.06em; margin: 1vh 0; cursor: pointer; }
-        .label { font-size: 2vmin; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.8; margin-bottom: 0.5rem; }
-        .notes { font-size: 2.2vmin; max-width: 60ch; line-height: 1.4; opacity: 0.7; margin: 0 auto; }
+        .timer-display { font-size: 28vmin; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 0.9; letter-spacing: -0.06em; margin: 2vh 0; cursor: pointer; }
+        .label { font-size: 2vmin; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.8; margin-bottom: 0.8rem; }
+        .notes { font-size: 2.2vmin; max-width: 60ch; line-height: 1.5; opacity: 0.7; margin: 0 auto; }
+        
+        /* Components */
         .pill { display: inline-flex; align-items: center; justify-content: center; padding: 0.6em 2em; border: var(--border) solid currentColor; border-radius: 100px; font-weight: 900; font-size: 2.5vmin; text-transform: uppercase; }
-        .btn-main { width: 100%; max-width: 500px; padding: 1.2em 0; font-size: 2.5vmin; font-weight: 900; text-transform: uppercase; background: var(--fg); color: var(--bg); border: var(--border) solid var(--bg); border-radius: 100px; cursor: pointer; transition: transform 0.1s; }
+        
+        /* Progress Bar */
+        .progress-bar { width: 100%; height: 6px; background: rgba(127,127,127,0.3); border-radius: 100px; margin-bottom: 4vh; overflow: hidden; position: relative; z-index: 1; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+
+        /* Buttons */
+        .btn-main { width: 100%; max-width: 500px; padding: 1.2em 0; font-size: 2.5vmin; font-weight: 900; text-transform: uppercase; background: var(--fg); color: var(--bg); border: var(--border) solid var(--bg); border-radius: 100px; cursor: pointer; transition: transform 0.1s; margin-bottom: 1vh; }
         .btn-main:active { transform: scale(0.97); }
-        .btn-ghost { background: transparent; color: inherit; border: 2px solid currentColor; padding: 0.6em 1.5em; border-radius: 100px; font-weight: 700; font-size: 1.8vmin; cursor: pointer; opacity: 0.5; }
+        .btn-ghost { background: transparent; color: inherit; border: 2px solid currentColor; padding: 0.6em 1.5em; border-radius: 100px; font-weight: 700; font-size: 1.8vmin; cursor: pointer; opacity: 0.5; transition: all 0.2s ease; }
+        .btn-ghost:hover { opacity: 1; background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+        /* Back Button - Desktop (Absolute Left) */
+        .btn-back { 
+            position: absolute; 
+            top: 6vh; left: 4vw; 
+            width: 50px; height: 50px; 
+            border-radius: 50%; border: var(--border) solid currentColor; 
+            background: transparent; color: inherit; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; opacity: 0.5; transition: all 0.2s ease; 
+            z-index: 50; 
+        }
+        .btn-back:hover { opacity: 1; transform: scale(1.1); background: var(--fg); color: var(--bg); }
+        .btn-back svg { width: 50%; height: 50%; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
         #setup .btn-main { margin: 10px 0; background: transparent; color: var(--fg); border-color: var(--fg); }
         #setup .btn-main:hover { background: var(--green); border-color: var(--green); color: var(--black); }
+
+        /* Modes */
         body.mode-rest { --bg: var(--white); --fg: var(--black); --accent: var(--black); }
         body.mode-switch { --bg: var(--orange); --fg: var(--black); --accent: var(--black); }
         #pause-layer { position: fixed; inset: 0; z-index: 100; background: rgba(0, 255, 102, 0.95); display: none; align-items: center; justify-content: center; }
         #pause-layer.visible { display: flex; }
-        .flex-col { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .progress-bar { width: 100%; height: 6px; background: rgba(127,127,127,0.3); border-radius: 100px; margin-bottom: 2vh; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+        .flex-col { display: flex; flex-direction: column; align-items: center; width: 100%; position: relative; }
+
+        /* --- MOBILE OVERRIDES (Portrait / Narrow Screens) --- */
+        @media (max-width: 768px), (orientation: portrait) {
+            .container { padding: 4vh 6vw; } /* More top padding */
+            
+            h1.hero { font-size: 10vh; margin-bottom: 1vh; } 
+            .timer-display { font-size: 18vh; margin: 1vh 0; }
+            .label { font-size: 1.8vh; margin-bottom: 0.5vh; }
+            .notes { font-size: 2.2vh; line-height: 1.3; max-width: 90%; }
+            .pill { font-size: 2.5vh; padding: 0.5em 1.5em; }
+
+            .btn-main { width: 90%; font-size: 3vh; padding: 1em 0; }
+            .btn-ghost { font-size: 2vh; padding: 0.8em 2em; }
+
+            /* Back Button - Mobile Fix: Move to top flow */
+            .btn-back {
+                position: relative; /* No longer absolute */
+                top: auto; left: auto;
+                width: 50px; height: 50px;
+                margin-bottom: 2vh; /* Space below button */
+                align-self: flex-start; /* Align left */
+            }
+
+            /* Progress Bar needs to stay below the back button now */
+            .progress-bar { width: 100%; margin-bottom: 3vh; }
+
+            #setup .hero { font-size: 12vh; margin-bottom: 4vh; }
+            #setup .btn-main { width: 90%; font-size: 3vh; }
+            #pause-layer h1 { font-size: 15vh !important; }
+        }
     </style>
 </head>
 <body>
@@ -37,30 +128,42 @@
     </div>
 
     <div id="setup" class="container active" style="justify-content: center;">
-        <div class="label" style="color: var(--green)">ZIV WORKOUT v5.4</div>
-        <h1 class="hero" style="font-size: 15vmin; margin-bottom: 4vh;">READY?</h1>
-        <div class="flex-col" style="gap: 1vh;">
+        <div class="label" style="color: var(--green)">WORKOUT TRACKER</div>
+        <h1 class="hero" style="margin-bottom: 4vh;">READY?</h1>
+        <div class="flex-col" style="gap: 1vh; width: 100%;">
             <button class="btn-main" onclick="app.start('A')">WORKOUT A (PUSH)</button>
             <button class="btn-main" onclick="app.start('B')">WORKOUT B (PULL)</button>
         </div>
-        <button onclick="audio.test()" style="margin-top: 5vh; background:none; border:none; color: #444; text-decoration: underline; cursor:pointer;">Sound Check</button>
+        <button onclick="audio.test()" style="margin-top: 5vh; background:none; border:none; color: #444; text-decoration: underline; cursor:pointer; font-size: 1rem;">Sound Check</button>
     </div>
 
     <div id="workout-ui" class="container">
-        <div class="flex-col">
+        
+        <div class="flex-col" style="width: 100%;"> 
+            <button class="btn-back" onclick="app.back()" title="Back / Undo">
+                <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+
             <div class="progress-bar"><div id="prog-fill" class="progress-fill"></div></div>
+            
             <div id="phase-lbl" class="label" style="color: var(--accent)">WORK</div>
             <h1 id="ex-name" class="hero">EXERCISE</h1>
-            <div style="margin-top: 1.5vh;"><div id="target-pill" class="pill">TARGET: 12</div></div>
+            <div style="margin-top: 1vh;">
+                <div id="target-pill" class="pill">TARGET: 12</div>
+            </div>
         </div>
+        
         <div id="timer" class="timer-display" onclick="app.togglePause()">00:00</div>
+        
         <div class="flex-col">
             <div id="meta-lbl" class="label">SET 1 / 3</div>
             <div id="notes-lbl" class="notes">Notes.</div>
-            <div style="margin-top: 3vh; width: 100%; display: flex; justify-content: center;">
+            
+            <div style="margin-top: 3vh; width: 100%; display: flex; flex-direction: column; align-items: center;">
                 <button id="action-btn" class="btn-main" onclick="app.action()">START</button>
             </div>
-            <div style="display: flex; gap: 15px; margin-top: 2vh;">
+
+            <div style="display: flex; gap: 20px; margin-top: 2vh;">
                 <button class="btn-ghost" onclick="app.togglePause()">PAUSE</button>
                 <button class="btn-ghost" onclick="app.quit()">EXIT</button>
             </div>
@@ -75,11 +178,9 @@
     <script>
         const audio = {
             sys: new Audio('alert.mp3'),
-            play() {
-                this.sys.currentTime = 0;
-                this.sys.play().catch(e => console.error("Audio block", e));
-            },
-            test() { this.play(); }
+            unlock() { this.sys.play().then(() => { this.sys.pause(); this.sys.currentTime=0; }).catch(()=>{}); },
+            play() { this.sys.currentTime=0; this.sys.play().catch(e => console.error(e)); },
+            test() { this.unlock(); setTimeout(()=>this.play(),100); }
         };
 
         const WORKOUTS = {
@@ -87,8 +188,8 @@
                 { name: 'Push-ups', sets: 3, reps: 'MAX (CLEAN)', rest: 90, notes: 'Chest to floor. Rigid plank.' },
                 { name: 'Pike Push-ups', sets: 3, reps: '8 - 12', rest: 90, notes: 'Hips high V-shape.' },
                 { name: 'Chair Dips', sets: 3, reps: '12 - 15', rest: 60, notes: 'Elbows back, deep stretch.' },
-                { name: 'Hollow Body', sets: 3, reps: '30-45 SEC', rest: 60, target: 30, notes: 'Lower back GLUED to floor.' },
-                { name: 'Side Planks', sets: 3, reps: '45S / SIDE', rest: 60, type: 'plank', notes: 'Obliques tight. 5s switch.' }
+                { name: 'Hollow Body', sets: 3, reps: '30s HOLD', rest: 60, type: 'static', duration: 30, notes: 'Lower back GLUED to floor.' },
+                { name: 'Side Planks', sets: 3, reps: '45s / SIDE', rest: 60, type: 'plank', notes: 'Obliques tight.' }
             ],
             'B': [
                 { name: 'Pull-ups', sets: 3, reps: 'MAX -1', rest: 120, notes: 'Full hang to chin over bar.' },
@@ -104,7 +205,7 @@
             ui: { setup: document.getElementById('setup'), work: document.getElementById('workout-ui'), comp: document.getElementById('complete'), bg: document.body, phase: document.getElementById('phase-lbl'), title: document.getElementById('ex-name'), pill: document.getElementById('target-pill'), timer: document.getElementById('timer'), meta: document.getElementById('meta-lbl'), notes: document.getElementById('notes-lbl'), btn: document.getElementById('action-btn'), bar: document.getElementById('prog-fill'), pause: document.getElementById('pause-layer') },
 
             start(type) {
-                audio.play(); // Play sound on selection to unlock audio engine
+                audio.play(); 
                 this.data = WORKOUTS[type];
                 this.ui.setup.classList.remove('active');
                 this.ui.work.classList.add('active');
@@ -114,11 +215,14 @@
             loadExercise() {
                 this.plankAbort = false; this.state = 'READY'; this.setMode('work');
                 const ex = this.data[this.exIdx];
-                this.ui.phase.innerText = "PREPARE"; this.ui.title.innerText = ex.name;
+                this.ui.phase.innerText = "PREPARE"; 
+                this.ui.title.innerText = ex.name;
                 this.ui.pill.innerText = `TARGET: ${ex.reps}`;
                 this.ui.meta.innerText = `SET ${this.setIdx} OF ${ex.sets}`;
-                this.ui.notes.innerText = ex.notes; this.ui.btn.innerText = "START SET";
-                this.renderTime(0); this.updateProgress();
+                this.ui.notes.innerText = ex.notes; 
+                this.ui.btn.innerText = "START SET";
+                this.renderTime(ex.type === 'static' ? ex.duration : 0);
+                this.updateProgress();
             },
 
             action() {
@@ -128,13 +232,49 @@
                 else if(this.state === 'REST') this.nextStep();
             },
 
+            back() {
+                clearInterval(this.timer);
+                this.plankAbort = true; 
+                if (this.state === 'REST') {
+                    this.loadExercise(); 
+                    this.doWork(); 
+                    return;
+                }
+                if (this.state === 'WORK' || this.state === 'READY' || this.state === 'SWITCH') {
+                    if (this.setIdx > 1) {
+                        this.setIdx--;
+                        this.loadExercise();
+                        this.doFinish();
+                    } else if (this.exIdx > 0) {
+                        this.exIdx--;
+                        this.setIdx = this.data[this.exIdx].sets;
+                        this.loadExercise();
+                        this.doFinish();
+                    } else {
+                        if (confirm("Quit to Main Menu?")) location.reload();
+                        else this.loadExercise();
+                    }
+                }
+            },
+
             doWork() {
                 const ex = this.data[this.exIdx];
                 if(ex.type === 'plank') this.runPlankSequence();
+                else if(ex.type === 'static') this.runStaticCountDown(ex.duration);
                 else {
                     this.state = 'WORK'; this.ui.phase.innerText = "WORK PHASE";
-                    this.ui.btn.innerText = "FINISH SET"; this.startTimer(true, ex.target);
+                    this.ui.btn.innerText = "FINISH SET"; this.startTimer(true, null);
                 }
+            },
+
+            async runStaticCountDown(duration) {
+                this.state = 'WORK';
+                this.ui.phase.innerText = "HOLD";
+                this.ui.btn.innerText = "FINISH EARLY";
+                this.startTimer(false, null, duration, () => {
+                    audio.play();
+                    this.doFinish();
+                });
             },
 
             async runPlankSequence() {
@@ -153,14 +293,38 @@
                     if(!this.plankAbort) audio.play();
                 };
                 this.ui.pill.innerText = "DONT DROP";
-                await segment("LEFT SIDE", 45, 'work'); await segment("SWITCH", 5, 'switch'); await segment("RIGHT SIDE", 45, 'work');
+                await segment("LEFT SIDE", 45, 'work'); 
+                await segment("SWITCH", 10, 'switch'); 
+                await segment("RIGHT SIDE", 45, 'work');
                 if(!this.plankAbort) this.doFinish();
             },
 
             doFinish() {
+                const isLastEx = (this.exIdx === this.data.length - 1);
+                const isLastSet = (this.setIdx === this.data[this.exIdx].sets);
+
+                if (isLastEx && isLastSet) {
+                    this.complete();
+                    return; 
+                }
+
                 if(this.data[this.exIdx].type === 'plank') this.plankAbort = true;
                 this.state = 'REST'; this.setMode('rest');
-                this.ui.title.innerText = "REST"; this.ui.btn.innerText = "SKIP REST";
+                
+                let nextName = "DONE", nextTarget = "FINISH";
+                if(this.setIdx < this.data[this.exIdx].sets) {
+                    nextName = this.data[this.exIdx].name;
+                    nextTarget = this.data[this.exIdx].reps;
+                } else if (this.data[this.exIdx+1]) {
+                    nextName = this.data[this.exIdx+1].name;
+                    nextTarget = this.data[this.exIdx+1].reps;
+                }
+
+                this.ui.title.innerText = "REST"; 
+                this.ui.phase.innerText = `UP NEXT: ${nextName}`; 
+                this.ui.pill.innerText = `GOAL: ${nextTarget}`;
+                this.ui.btn.innerText = "SKIP REST";
+                
                 this.startTimer(false, null, this.data[this.exIdx].rest, () => { audio.play(); this.nextStep(); });
             },
 
@@ -193,23 +357,20 @@
             },
 
             setMode(m) { this.ui.bg.className = `mode-${m}`; },
-
             updateProgress() {
                 const total = this.data.reduce((a,b) => a + b.sets, 0);
                 const current = this.data.slice(0, this.exIdx).reduce((a,b)=>a+b.sets, 0) + (this.setIdx - 1);
                 this.ui.bar.style.width = `${(current/total)*100}%`;
             },
-
             togglePause() { if(this.state !== 'IDLE') { this.paused = !this.paused; this.ui.pause.className = this.paused ? 'visible' : ''; } },
-
             quit() { if(confirm("Exit workout?")) location.reload(); },
-
             complete() { this.ui.work.classList.remove('active'); this.ui.comp.classList.add('active'); this.setMode('work'); audio.play(); }
         };
 
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space') { e.preventDefault(); app.action(); }
             if (e.code === 'Escape') { e.preventDefault(); app.togglePause(); }
+            if (e.code === 'Backspace') { e.preventDefault(); app.back(); }
         }, true);
     </script>
 </body>
